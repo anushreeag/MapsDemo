@@ -71,9 +71,6 @@ public class TestingJSON extends AppCompatActivity {
              }
          });
 
-
-
-
          Log.i(TAG, "" + eventsList.size());
      }
 
@@ -96,7 +93,9 @@ public class TestingJSON extends AppCompatActivity {
                          double lat = response.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getDouble("lat");
                          double lng = response.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getDouble("lng");
                          LatLng latlng = new LatLng(lat,lng);
-                         eventsList.get(pos).setmPosition(latlng);
+                         eventsList.get(pos).setLatitude(lat);
+                         eventsList.get(pos).setLongitude(lng);
+                         eventsList.get(pos).setPosition(latlng);
                          Log.i(TAG, ""+lat);
                          Log.i(TAG, ""+lng);
 

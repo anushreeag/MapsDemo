@@ -5,18 +5,29 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.Parcelable.Creator;
 
+import com.cosmic.mapsexample.database.MyDatabase;
+import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
+import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.structure.BaseModel;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-
-public class Venue implements Parcelable
+@Table(database = MyDatabase.class)
+@org.parceler.Parcel(analyze={Venue.class})
+public class Venue extends BaseModel implements Parcelable
 {
 
-    private long id;
-    private String name;
-    private String address;
+    @PrimaryKey
+    @Column
+    long id;
+    @Column
+    String name;
+    @Column
+    String address;
     public final static Parcelable.Creator<Venue> CREATOR = new Creator<Venue>() {
 
 

@@ -16,12 +16,14 @@
 
 package com.cosmic.mapsexample.activity;
 
+import android.util.Log;
 import android.widget.Toast;
 
 import com.cosmic.mapsexample.model.Events;
+import com.cosmic.mapsexample.utils.EventRenderer;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
 
 import org.json.JSONException;
@@ -32,33 +34,70 @@ import java.util.List;
 /**
  * Simple activity demonstrating ClusterManager.
  */
-public class ClusteringDemoActivity extends BaseDemoActivity {
-    private ClusterManager<Events> mClusterManager;
+public class ClusteringDemoActivity extends BaseDemoActivity implements ClusterManager.OnClusterClickListener<Events>,
+        ClusterManager.OnClusterInfoWindowClickListener<Events>,
+        ClusterManager.OnClusterItemClickListener<Events>,
+        ClusterManager.OnClusterItemInfoWindowClickListener<Events>
+    {
+        private ClusterManager<Events> mClusterManager;
 
-    @Override
-    protected void startDemo() {
-        getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(37.7749,-122.4194), 10));
+        @Override
+        protected void startDemo() {
+            getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(37.7749,-122.4194), 10));
+            mClusterManager = new ClusterManager<Events>(this, getMap());
+            mClusterManager.addItems(eventlist);
+            setListeners();
+            setMapUISettings();
+            mClusterManager.setRenderer(new EventRenderer(getApplicationContext(),getMap(),mClusterManager));
+            mClusterManager.cluster();
 
 
-        mClusterManager = new ClusterManager<Events>(this, getMap());
-        mClusterManager.addItems(eventlist);
-        //getMap().setOnCameraIdleListener(mClusterManager);
+        }
 
-        for(int i =0;i<eventlist.size();i++){
-            getMap().addMarker(new MarkerOptions().position(eventlist.get(i).getPosition()).title(eventlist.get(i).getTitle()));
+        private void setListeners(){
+            getMap().setOnCameraChangeListener(mClusterManager);
+            getMap().setOnMarkerClickListener(mClusterManager);
+            getMap().setOnInfoWindowClickListener(mClusterManager);
+            mClusterManager.setOnClusterClickListener(this);
+            mClusterManager.setOnClusterInfoWindowClickListener(this);
+            mClusterManager.setOnClusterItemClickListener(this);
+            mClusterManager.setOnClusterItemInfoWindowClickListener(this);
+        }
+
+        private void setMapUISettings(){
+            getMap().getUiSettings().setZoomControlsEnabled(true);
+            getMap().getUiSettings().setRotateGesturesEnabled(false);
+            getMap().getUiSettings().setScrollGesturesEnabled(true);
+            getMap().getUiSettings().setTiltGesturesEnabled(false);
         }
 
 
-       /* try {
-            readItems();
-        } catch (JSONException e) {
-            Toast.makeText(this, "Problem reading list of markers.", Toast.LENGTH_LONG).show();
-        } */
+        @Override
+        public boolean onClusterClick(Cluster<Events> cluster) {
+
+            String firstName = cluster.getItems().iterator().next().getTitle();
+            Toast.makeText(this, cluster.getSize() + " (including " + firstName + ")", Toast.LENGTH_SHORT).show();
+            Log.i("Cluster","onClusterClick "+cluster.getItems().size());
+            return false;
+        }
+
+        @Override
+        public void onClusterInfoWindowClick(Cluster<Events> cluster) {
+            // Does nothing, but you could go to a list of the users.
+        }
+
+        @Override
+        public boolean onClusterItemClick(Events event) {
+            Toast.makeText(this, event.getTitle(), Toast.LENGTH_SHORT).show();
+
+            return false;
+        }
+
+        @Override
+        public void onClusterItemInfoWindowClick(Events event) {
+
+        }
+
+
+
     }
-
-   /* private void readItems() throws JSONException {
-        InputStream inputStream = getResources().openRawResource(R.raw.radar_search);
-        List<Events> items = new MyItemReader().read(inputStream);
-
-    }*/
-}
